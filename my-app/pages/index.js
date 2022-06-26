@@ -3,30 +3,24 @@ import React from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { providers, Contract } from 'ethers';
 
-
 export default function IndexPage() {
-
 
   const [state, setState] = React.useState({
     claim: "",
-    sigR8x: "",
-    sigR8y: "",
-    sigS: "",
-    pubKeyX: "",
-    pubKeyY: "",
+    signature: "",
     airdropAddress: "",
     proof: "",
     tokenId : "",
-    loading: false
+    loading: false,
+    drop: false
   })
 
   let handleCalcProof = () => {
-    calculateProof(state.claim, state.sigR8x, state.sigR8y, state.sigS, state.pubKeyX, state.pubKeyY, state, setState);
+    calculateProof(state, setState);
   }
-// fix this call, Do I need the state?
 
   let handleCollect = () => {
-    collectDrop(state.proof, state.airdropAddress, state, setState);
+    collectDrop(state, setState);
   }
 
 
@@ -70,78 +64,17 @@ export default function IndexPage() {
               <div className="input-group mt-2">
                 <div className="input-group-prepend">
                   <div className="input-group-text">
-                  sigR8x 
+                  Signature 
                   </div>
                 </div>
                 <input
                   type="text"
-                  name="sigR8x"
+                  name="signature"
                   className="form-control"
-                  value={state.sigR8x}
+                  value={state.signature}
                   onChange={evt => setState({...state, [evt.target.name]: evt.target.value})}
                   />
               </div>
-
-              <div className="input-group mt-2">
-                <div className="input-group-prepend">
-                  <div className="input-group-text">
-                  sigR8y 
-                  </div>
-                </div>
-                <input
-                  type="text"
-                  name="sigR8y"
-                  className="form-control"
-                  value={state.sigR8y}
-                  onChange={evt => setState({...state, [evt.target.name]: evt.target.value})}
-                  />
-              </div>
-
-              <div className="input-group mt-2">
-                <div className="input-group-prepend">
-                  <div className="input-group-text">
-                  sigS 
-                  </div>
-                </div>
-                <input
-                  type="text"
-                  name="sigS"
-                  className="form-control"
-                  value={state.sigS}
-                  onChange={evt => setState({...state, [evt.target.name]: evt.target.value})}
-                  />
-              </div>
-
-              <div className="input-group mt-2">
-                <div className="input-group-prepend">
-                  <div className="input-group-text">
-                  pubKeyX 
-                  </div>
-                </div>
-                <input
-                  type="text"
-                  name="pubKeyX"
-                  className="form-control"
-                  value={state.pubKeyX}
-                  onChange={evt => setState({...state, [evt.target.name]: evt.target.value})}
-                  />
-              </div>
-
-              <div className="input-group mt-2">
-                <div className="input-group-prepend">
-                  <div className="input-group-text">
-                  pubKeyY 
-                  </div>
-                </div>
-                <input
-                  type="text"
-                  name="pubKeyY"
-                  className="form-control"
-                  value={state.pubKeyY}
-                  onChange={evt => setState({...state, [evt.target.name]: evt.target.value})}
-                  />
-              </div>
-
         
               <div className="input-group mt-2">
                 <div className="input-group-prepend">
@@ -174,7 +107,6 @@ export default function IndexPage() {
               </div>
 
             </div>
-
             <div className="card-footer"> 
               <button className="btn btn-primary" onClick={handleCalcProof}>Calculate Proof</button>
               <button className="btn btn-warning ml-2" onClick={handleCollect}>Collect Drop</button>
@@ -182,11 +114,17 @@ export default function IndexPage() {
           </div>
         </div>
 
-  
-
           {state.loading? 
             <div className="spinner-border m-5" role="status">
-              {/* <span className="sr-only">Loading...</span> */}
+              <span className="sr-only">Loading...</span>
+            </div>
+            :
+            <p></p>
+          }
+
+          {state.drop? 
+            <div class="alert alert-success" role="alert">
+            Congratulations! You successfully claimed your airdrop
             </div>
             :
             <p></p>
@@ -200,19 +138,42 @@ export default function IndexPage() {
             <div className="card-body">
               {state.proof === ''?
                 <div>
-                  No proof calculated
+                  No proof generated yet
                 </div> 
               :
                 <div>
-                  A: {state.proof[0]} <br/>
-                  B: {state.proof[1]} <br/>
-                  C: {state.proof[2]} <br/>
-                  pubInput: {state.proof[3]}
+                  <div className="input-group-text">
+                  A 
+                  </div>  
+                  <div>                 
+                  {state.proof[0][0]}, {state.proof[0][1]}
+                  </div> 
+                  <div className="input-group-text">
+                  B 
+                  </div> 
+                  <div>     
+                  {state.proof[1][0][0]}, {state.proof[1][0][1]}, {state.proof[1][1][0]}, {state.proof[1][1][1]}
+                  </div>
+                  <div className="input-group-text">
+                  C 
+                  </div> 
+                  <div>     
+                  {state.proof[2][0]}, {state.proof[2][1]}
+                  </div>
+                  <div className="input-group-text">
+                  Pub Inputs
+                  </div>
+                  {(() => { let pubInputs = [];
+                    for (let i=0; i<state.proof[3].length; i++) {
+                      pubInputs.push(<div>{state.proof[3][i]}</div>)
+                  } return pubInputs
+                  })()}
                 </div>
               }
             </div>
           </div>
 
+         
 
         </div>
         <div className="col-4"></div>
@@ -221,19 +182,12 @@ export default function IndexPage() {
   )
 }
 
-async function calculateProof(claim, sigR8x, sigR8y, sigS, pubKeyX, pubKeyY, state, setState) {
-  if (state.claim === '' || state.sigR8x === '' || state.sigR8y === '' || state.sigS === '' || state.pubKeyX === '' || state.pubKeyY === '')  {
+async function calculateProof(state, setState) {
+  if (state.claim === '' || state.signature === '')  {
     alert("One of the input value for proof generation hasn't been provided ")
     return
   }
   setState({...state, loading:true})
-
-  // // Connect to wallet, get address
-  // let provider = new providers.Web3Provider(window.ethereum);
-  // await provider.send("eth_requestAccounts", []);
-  // let signer = provider.getSigner();
-  // let address = await signer.getAddress();
-
 
   // Load files and run proof locally
   let DOMAIN = "http://localhost:3000";
@@ -242,14 +196,14 @@ async function calculateProof(claim, sigR8x, sigR8y, sigS, pubKeyX, pubKeyY, sta
 
   
   let preTime = new Date().getTime();
-  let proof = await generateProof(claim, sigR8x, sigR8y, sigS, pubKeyX, pubKeyY, wasmBuff, zkeyBuff);
+  let proof = await generateProof(state.claim, state.signature, wasmBuff, zkeyBuff);
   let elapsed =  new Date().getTime() - preTime;
   console.log(`Time to compute proof: ${elapsed}ms`);
 
   setState({...state, proof: proof, loading:false})
 }
 
-async function collectDrop(proof, airdropAddr, state, setState) {
+async function collectDrop(state, setState) {
 
   const AIRDROP_JSON = require('../ABIS/PrivateOver18Airdrop.json');
 
@@ -266,7 +220,7 @@ async function collectDrop(proof, airdropAddr, state, setState) {
 
   let provider = new providers.Web3Provider(window.ethereum);
   await provider.send("eth_requestAccounts", []);
-  let contract = new Contract(airdropAddr, AIRDROP_JSON.abi, provider.getSigner());
+  let contract = new Contract(state.airdropAddress, AIRDROP_JSON.abi, provider.getSigner());
 
   let a = state.proof[0];
   let b = state.proof[1];
@@ -281,7 +235,7 @@ async function collectDrop(proof, airdropAddr, state, setState) {
     alert("Airdrop collection failed: " + error)
   }
 
-  setState({...state, loading:false})
+  setState({...state, loading:false, drop:true})
 }
 
 

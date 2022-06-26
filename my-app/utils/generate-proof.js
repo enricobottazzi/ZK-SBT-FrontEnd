@@ -1,21 +1,31 @@
 const snarkjs = require('snarkjs');
 const wc = require("./witness_calculator.js");
 
-export default async function generateProof(claim, sigR8x, sigR8y, sigS, pubKeyX, pubKeyY, wasm_buff, zkey_buff) {
+export default async function generateProof(claim, signature, wasm_buff, zkey_buff) {
 
   const claimArr = claim.split(",");
 
+  const sig = signature.split(",")
+
+  const pubKeyX = "9582165609074695838007712438814613121302719752874385708394134542816240804696"
+  const pubKeyY= "18271435592817415588213874506882839610978320325722319742324814767882756910515"
+  const claimSchema= "180410020913331409885634153623124536270"
+  const slotIndex = 2
+  const operator = 3
+  const value = [18,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+
+
   let input = {
     "claim": claimArr,
-    "sigR8x": sigR8x,
-    "sigR8y": sigR8y,
-    "sigS": sigS,
+    "sigR8x": sig[0],
+    "sigR8y": sig[1],
+    "sigS": sig[2],
     "pubKeyX": pubKeyX,
     "pubKeyY": pubKeyY,
-    "claimSchema": "180410020913331409885634153623124536270",
-    "slotIndex": 2,
-    "operator": 3,
-    "value": [18,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+    "claimSchema": claimSchema,
+    "slotIndex": slotIndex,
+    "operator": operator,
+    "value": value
   }
 
   let witnessCalculator = await wc(wasm_buff);
