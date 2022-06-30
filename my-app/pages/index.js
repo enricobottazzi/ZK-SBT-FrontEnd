@@ -108,6 +108,7 @@ export default function IndexPage() {
 
             </div>
             <div className="card-footer"> 
+              <button className="btn btn-success" >Mint a test SBT</button>
               <button className="btn btn-primary" onClick={handleCalcProof}>Calculate Proof</button>
               <button className="btn btn-warning ml-2" onClick={handleCollect}>Collect Drop</button>
             </div>
@@ -180,6 +181,35 @@ export default function IndexPage() {
       </div>
     </div>
   )
+}
+
+async function mintNFT(state, setState) {
+
+  const PRIVATESOULMINTER_JSON = require('../ABIS/PrivateSoulMinter.json');
+  const privateSoulMinterAddress = "0x72161C449C46C5816Eed92CD1d31fd708a4d05Ac"
+
+
+  let provider = new providers.Web3Provider(window.ethereum);
+  await provider.send("eth_requestAccounts", []);
+  let contract = new Contract(privateSoulMinterAddress, PRIVATESOULMINTER_JSON.abi, provider.getSigner());
+
+  let metaURI = "https://bafybeibodo3cnumo76lzdf2dlatuoxtxahgowxuihwiqeyka7k2qt7eupy.ipfs.nftstorage.link/"
+  let claimHashMetadata = ethers.utils.solidityKeccak256(["uint", "uint", "uint"], [sigR8x, sigR8y, sigS])
+
+  // - Import NFT json for the modified version with public minting 
+  // - Hardcode Claim Hash Metadata
+  // - Add NFT minted as state variable 
+  // - Display a message show your NFT minted and your token ID
+  // - Add loading to mint the NFT too! 
+
+  try {
+    let tx = await contract.mint(msg.sender, metaURI, claimHashMetadata );
+    await tx.wait()
+  } catch (error) {
+    alert("Airdrop collection failed: " + error)
+  }
+
+  
 }
 
 async function calculateProof(state, setState) {

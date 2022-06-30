@@ -42,9 +42,7 @@ If another Dapp wants to set entry conditions based on a creditScore claim the p
     - `Signature` 
 - Note that the `Claim` is the only private input for our [circuit](https://github.com/enricobottazzi/ZK-SBT/blob/main/circuits/verify.circom) and it should never be shared with the verfier. That's why the proof generation happens entirely on the brower level.
 - The other inputs such as Issuer's `PubKey` and the ones related to verifier's query `claimSchema`, `slotIndex`, `operator` and `value` are passed to the proof generator as public contants. 
-- Interact with the smart contract
-
-from `const uint64_max = BigInt(2) ** BigInt(64)` to `const uint64_max = BigInt(2 ** 64)` inside fvnHash function
+- Connect your wallet to interact with the Over18Airdrop smart contract that is gonna veriy the proof and add you to the list of addresses eligible for the claim.
 
 ### Resources
 
@@ -54,17 +52,32 @@ Modify the witness calculator file to support the proof generation.
 
 ### To Do 
 
-- Show elegible for the airdrop
-- Manually extract the TokenID 
 - Add button to mint you an NFT for testing. How can I store the key locally on the frontend?
-- Deploy on Vercel 
-- TEST the "No SBT associated with this account erroe"
+- Deploy on Vercel.
+- Remove private airdrop as user input.
+- Put private airdrop contractt address as a constant
+
+### For demo 
+
+`claim: 180410020913331409885634153623124536270,0,25,0,0,0,328613907243889777235018884535160632327,0`
+`signature: 13692340849919074629431384397504503745238970557428973719013760553241945274451,18066895302190271072509218697462294016350129302467595054878773027470753683267,238898180964301975640138172772451490757586081215817420470161945050687067203`
 
 
 ### Test 
 
+- Move to Mumbai testnet to get an NFT minted.
 - You need to pre-mint a token to your address
 - Generate proof. When generating the proof it gets display in 4 blocks. `A`, `B` and `C` are a set of elliptic curve points that represent the actual proof, while `public` represents the public input for the circuit uside inside the Snark. Note that these will be used as parameters inside our smart contract call to the `Private Over18 Airdrop Contract Address`
 - Verify the proof
-- Test it by using 
+- Test it by using
+
+
+
+### Get your self an NFT 
+
+- Get yourself some Polygon Mumbai Token
+- Click a button
+- Automatically switch to Mumbai TestNet
+- Make a smart contract call to `0x72161C449C46C5816Eed92CD1d31fd708a4d05Ac`, passing. function mint(address to, string calldata metaURI, bytes32 claimHashMetadata) public {
+- Display a message show your NFT minted and your token ID
 
