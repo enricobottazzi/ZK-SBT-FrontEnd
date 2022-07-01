@@ -1,7 +1,8 @@
-# ZK-Lego
-Modular plug and play solution to create ZK Dapps
+# ZK-SBT-Frontend
 
-# Module 1 - ZK SBT
+
+
+Modular plug and play solution to create ZK Dapps
 
 ### App-integrator
 
@@ -44,11 +45,15 @@ If another Dapp wants to set entry conditions based on a creditScore claim the p
 - The other inputs such as Issuer's `PubKey` and the ones related to verifier's query `claimSchema`, `slotIndex`, `operator` and `value` are passed to the proof generator as public contants. 
 - Connect your wallet to interact with the Over18Airdrop smart contract that is gonna veriy the proof and add you to the list of addresses eligible for the claim.
 
-### Resources
+### Notes
 
 The source code from the front-end application is massively borrowed from [a16z](https://github.com/a16z/zkp-merkle-airdrop-fe-ex). 
 
+The `.babelrc` config file has been to solve a BigInt compatibility problem generated inside the browser.
+
 Modify the witness calculator file to support the proof generation. 
+
+Private Airdrop address: 0xB1d8Fe14Ce99CE92025F16fF41922F33860149A0
 
 ### To Do 
 
@@ -56,12 +61,13 @@ Modify the witness calculator file to support the proof generation.
 - Deploy on Vercel.
 - Remove private airdrop as user input.
 - Put private airdrop contractt address as a constant
+- Remove input in line after the proof gets generated
+- Test MM Provider
 
 ### For demo 
 
 `claim: 180410020913331409885634153623124536270,0,25,0,0,0,328613907243889777235018884535160632327,0`
 `signature: 13692340849919074629431384397504503745238970557428973719013760553241945274451,18066895302190271072509218697462294016350129302467595054878773027470753683267,238898180964301975640138172772451490757586081215817420470161945050687067203`
-
 
 ### Test 
 
@@ -70,14 +76,10 @@ Modify the witness calculator file to support the proof generation.
 - Generate proof. When generating the proof it gets display in 4 blocks. `A`, `B` and `C` are a set of elliptic curve points that represent the actual proof, while `public` represents the public input for the circuit uside inside the Snark. Note that these will be used as parameters inside our smart contract call to the `Private Over18 Airdrop Contract Address`
 - Verify the proof
 - Test it by using
+Deploy on Polygon Mumbai
 
 
 
-### Get your self an NFT 
+### To Do 
 
-- Get yourself some Polygon Mumbai Token
-- Click a button
-- Automatically switch to Mumbai TestNet
-- Make a smart contract call to `0x72161C449C46C5816Eed92CD1d31fd708a4d05Ac`, passing. function mint(address to, string calldata metaURI, bytes32 claimHashMetadata) public {
-- Display a message show your NFT minted and your token ID
-
+- Make a demo explanatory Video

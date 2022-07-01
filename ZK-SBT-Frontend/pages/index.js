@@ -1,7 +1,7 @@
 import generateProof from '../utils/generate-proof.js';
 import React from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { providers, Contract } from 'ethers';
+import { providers, Contract, utils} from 'ethers';
 
 export default function IndexPage() {
 
@@ -21,6 +21,10 @@ export default function IndexPage() {
 
   let handleCollect = () => {
     collectDrop(state, setState);
+  }
+
+  let handleMint = () => {
+    mintNFT(state, setState);
   }
 
 
@@ -91,24 +95,9 @@ export default function IndexPage() {
                   />
               </div>
 
-              <div className="input-group mt-2">
-                <div className="input-group-prepend">
-                  <div className="input-group-text">
-                    Token ID
-                  </div>
-                </div>
-                <input
-                  type="text"
-                  name="tokenId"
-                  className="form-control"
-                  value={state.tokenId}
-                  onChange={evt => setState({...state, [evt.target.name]: evt.target.value})}
-                  />
-              </div>
-
             </div>
             <div className="card-footer"> 
-              <button className="btn btn-success" >Mint a test SBT</button>
+              <button className="btn btn-success" onClick={handleMint} >Mint a test SBT</button>
               <button className="btn btn-primary" onClick={handleCalcProof}>Calculate Proof</button>
               <button className="btn btn-warning ml-2" onClick={handleCollect}>Collect Drop</button>
             </div>
@@ -131,6 +120,24 @@ export default function IndexPage() {
             <p></p>
           }
 
+          {state.tokenId != "" && state.proof == "" ? 
+            <div class="alert alert-success" role="alert">
+            A SBT with tokenID {state.tokenId} was minted to you!
+
+            <div> 
+            Claim : 180410020913331409885634153623124536270,0,25,0,0,0,328613907243889777235018884535160632327,0
+            </div> 
+            
+            <div>
+            Signature : 13692340849919074629431384397504503745238970557428973719013760553241945274451,
+            18066895302190271072509218697462294016350129302467595054878773027470753683267,
+            238898180964301975640138172772451490757586081215817420470161945050687067203
+            </div> 
+
+            </div>
+            :
+            <p></p>
+          }
 
           <div className="card">
             <div className="card-header">
@@ -186,30 +193,36 @@ export default function IndexPage() {
 async function mintNFT(state, setState) {
 
   const PRIVATESOULMINTER_JSON = require('../ABIS/PrivateSoulMinter.json');
-  const privateSoulMinterAddress = "0x72161C449C46C5816Eed92CD1d31fd708a4d05Ac"
-
+  const privateSoulMinterAddress = "0x2F34B35Af6200e2FE9BbED3dF699C19e089310cC"
 
   let provider = new providers.Web3Provider(window.ethereum);
   await provider.send("eth_requestAccounts", []);
   let contract = new Contract(privateSoulMinterAddress, PRIVATESOULMINTER_JSON.abi, provider.getSigner());
 
-  let metaURI = "https://bafybeibodo3cnumo76lzdf2dlatuoxtxahgowxuihwiqeyka7k2qt7eupy.ipfs.nftstorage.link/"
-  let claimHashMetadata = ethers.utils.solidityKeccak256(["uint", "uint", "uint"], [sigR8x, sigR8y, sigS])
+  setState({...state, loading:true})
 
-  // - Import NFT json for the modified version with public minting 
-  // - Hardcode Claim Hash Metadata
-  // - Add NFT minted as state variable 
-  // - Display a message show your NFT minted and your token ID
-  // - Add loading to mint the NFT too! 
+  let sigR8x = "13692340849919074629431384397504503745238970557428973719013760553241945274451"
+  let sigR8y = "18066895302190271072509218697462294016350129302467595054878773027470753683267"
+  let sigS  = "238898180964301975640138172772451490757586081215817420470161945050687067203"
+
+  let metaURI = "https://bafybeibodo3cnumo76lzdf2dlatuoxtxahgowxuihwiqeyka7k2qt7eupy.ipfs.nftstorage.link/"
+  let claimHashMetadata = utils.solidityKeccak256(["uint", "uint", "uint"], [sigR8x, sigR8y, sigS])
+
+  let tokenId
 
   try {
-    let tx = await contract.mint(msg.sender, metaURI, claimHashMetadata );
-    await tx.wait()
-  } catch (error) {
-    alert("Airdrop collection failed: " + error)
-  }
+    let tx = await contract.mint(provider.getSigner().getAddress(), metaURI, claimHashMetadata);
+    let receipt = await tx.wait();
+    let id = receipt.events?.filter((x) => {return x.event == "Transfer"})[0].topics[3]
 
-  
+    tokenId = parseInt(id).toString()
+    setState({...state, loading:false, tokenId:tokenId})
+
+  } catch (error) {
+    alert("Minting collection failed: " + error)
+    setState({...state, loading:false})
+  } 
+
 }
 
 async function calculateProof(state, setState) {
@@ -217,6 +230,7 @@ async function calculateProof(state, setState) {
     alert("One of the input value for proof generation hasn't been provided ")
     return
   }
+
   setState({...state, loading:true})
 
   // Load files and run proof locally
@@ -225,12 +239,14 @@ async function calculateProof(state, setState) {
   let zkeyBuff = await getFileBuffer(`${DOMAIN}/circuit_final.zkey`);
 
   
-  let preTime = new Date().getTime();
-  let proof = await generateProof(state.claim, state.signature, wasmBuff, zkeyBuff);
-  let elapsed =  new Date().getTime() - preTime;
-  console.log(`Time to compute proof: ${elapsed}ms`);
+  try {
+    let proof = await generateProof(state.claim, state.signature, wasmBuff, zkeyBuff);
+    setState({...state, proof: proof, loading:false})
 
-  setState({...state, proof: proof, loading:false})
+  } catch (error) {
+    alert("Proof generation Failed: " + error)
+    setState({...state, loading:false})
+  } 
 }
 
 async function collectDrop(state, setState) {
@@ -249,7 +265,6 @@ async function collectDrop(state, setState) {
   setState({...state, loading:true})
 
   let provider = new providers.Web3Provider(window.ethereum);
-  await provider.send("eth_requestAccounts", []);
   let contract = new Contract(state.airdropAddress, AIRDROP_JSON.abi, provider.getSigner());
 
   let a = state.proof[0];
@@ -261,13 +276,13 @@ async function collectDrop(state, setState) {
     let tx = await contract.collectAirdrop(a, b, c, pubInput, state.tokenId);
     await tx.wait()
     console.log("Drop collected!")
+    setState({...state, loading:false, drop:true})
   } catch (error) {
-    alert("Airdrop collection failed: " + error)
+    alert("Aidrop collection Failed: " + error)
+    setState({...state, loading:false})
   }
 
-  setState({...state, loading:false, drop:true})
 }
-
 
 async function getFileBuffer(filename) {
   let req = await fetch(filename);
