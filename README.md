@@ -9,8 +9,6 @@ This repo contains the frontend implementation related to the ZK-SBT protocol ou
 - Generate proof. When generating the proof it gets display in 4 blocks. `A`, `B` and `C` are a set of elliptic curve points that represent the actual proof, while `public` represents the public input for the circuit uside inside the Snark. Note that these will be used as parameters inside our smart contract call to the `Private Over18 Airdrop Contract Address`
 - Verify the proof
 
-
-
 ## Integrate
 
 The goal here is mainly to showcase how easy is to integrate ZK based verification inside your dapp. Let's consider a Dapp that only allows user over 18 to participate to the airdrop. The integration must happen on the smart contract level and on the frontend level
