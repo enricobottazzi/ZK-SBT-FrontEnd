@@ -8,7 +8,6 @@ export default function IndexPage() {
   const [state, setState] = React.useState({
     claim: "",
     signature: "",
-    airdropAddress: "",
     proof: "",
     tokenId : "",
     loading: false,
@@ -76,21 +75,6 @@ export default function IndexPage() {
                   name="signature"
                   className="form-control"
                   value={state.signature}
-                  onChange={evt => setState({...state, [evt.target.name]: evt.target.value})}
-                  />
-              </div>
-        
-              <div className="input-group mt-2">
-                <div className="input-group-prepend">
-                  <div className="input-group-text">
-                    Private Over18 Airdrop Contract Address
-                  </div>
-                </div>
-                <input
-                  type="text"
-                  name="airdropAddress"
-                  className="form-control"
-                  value={state.airdropAddress}
                   onChange={evt => setState({...state, [evt.target.name]: evt.target.value})}
                   />
               </div>
@@ -193,7 +177,7 @@ export default function IndexPage() {
 async function mintNFT(state, setState) {
 
   const PRIVATESOULMINTER_JSON = require('../ABIS/PrivateSoulMinter.json');
-  const privateSoulMinterAddress = "0x2F34B35Af6200e2FE9BbED3dF699C19e089310cC"
+  const privateSoulMinterAddress = "0x35564790237D94b36F7DF8d09E0f0Dd3197067f3"
 
   let provider = new providers.Web3Provider(window.ethereum);
   await provider.send("eth_requestAccounts", []);
@@ -241,7 +225,7 @@ async function calculateProof(state, setState) {
   
   try {
     let proof = await generateProof(state.claim, state.signature, wasmBuff, zkeyBuff);
-    setState({...state, proof: proof, loading:false})
+    setState({...state, proof: proof, loading:false, claim: "", signature: ""})
 
   } catch (error) {
     alert("Proof generation Failed: " + error)
@@ -252,20 +236,17 @@ async function calculateProof(state, setState) {
 async function collectDrop(state, setState) {
 
   const AIRDROP_JSON = require('../ABIS/PrivateOver18Airdrop.json');
+  const airdropAddress = "0xbCB89b65d6506CC803B0496403ed0A30CE504db8"
 
   if (state.proof === '') {
     alert("No proof calculated yet!")
-    return
-  }
-  if (state.airdropAddress === '') {
-    alert("No airdrop address entered!")
     return
   }
 
   setState({...state, loading:true})
 
   let provider = new providers.Web3Provider(window.ethereum);
-  let contract = new Contract(state.airdropAddress, AIRDROP_JSON.abi, provider.getSigner());
+  let contract = new Contract(airdropAddress, AIRDROP_JSON.abi, provider.getSigner());
 
   let a = state.proof[0];
   let b = state.proof[1];
