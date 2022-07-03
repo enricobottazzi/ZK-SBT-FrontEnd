@@ -57,3 +57,6 @@ If another Dapp wants to set entry conditions based on a creditScore claim the p
 The source code from the front-end application is massively borrowed from [a16z](https://github.com/a16z/zkp-merkle-airdrop-fe-ex). 
 The `.babelrc` config file has been added to solve a BigInt compatibility problem generated inside the browser.
 
+### Demo 
+
+[Youtube](https://youtu.be/pCP6XuUv4pc)
