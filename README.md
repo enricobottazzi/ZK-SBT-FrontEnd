@@ -10,6 +10,8 @@ This repo contains the frontend implementation related to the ZK-SBT protocol ou
 - Input the `claim` and the `signature` to generate the proof. When generating the proof it gets displayed in 4 blocks. `A`, `B` and `C` are a set of elliptic curve points that represent the actual proof, while `public` represents the public input used inside the Snark. 
 - Once the proof is generated click `Collect Airdrop`. This will generate a call to the `Private Over18 Airdrop Contract` passing the proof generated in the previous step as calldata
 
+[Youtube Demo](https://youtu.be/4W1LkUpSIfE)
+
 ## Integrate
 
 The goal here is to showcase how easy is to integrate ZK based verification inside your dapp. Let's consider a Dapp that only allows user over 18 to participate to the airdrop. The integration must happen on the smart contract level and on the frontend level
@@ -57,6 +59,3 @@ If another Dapp wants to set entry conditions based on a creditScore claim the p
 The source code from the front-end application is massively borrowed from [a16z](https://github.com/a16z/zkp-merkle-airdrop-fe-ex). 
 The `.babelrc` config file has been added to solve a BigInt compatibility problem generated inside the browser.
 
-### Demo 
-
-[Youtube](https://youtu.be/pCP6XuUv4pc)
