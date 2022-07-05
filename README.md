@@ -5,10 +5,10 @@ This repo contains the frontend implementation related to the ZK-SBT protocol ou
 ## Demo
 
 - Run `yarn install` and `yarn dev` to locally deploy the frontend
-- Visit `http://localhost:3000/` and move to Polygon Mumbai testnet inside your wallet
+- Visit `http://localhost:3000/` and move to Goerli testnet inside your wallet
 - Click `Mint a test SBT` to mint an Age SBT to your wallet. The claim attesting user's age and the signature of the claim are passed to the user off-chain. The SBT only contains an hash of the signature.
 - Input the `claim` and the `signature` to generate the proof. When generating the proof it gets displayed in 4 blocks. `A`, `B` and `C` are a set of elliptic curve points that represent the actual proof, while `public` represents the public input used inside the Snark. 
-- Once the proof is generated click `Collect Airdrop`. This will generate a call to the `Private Over18 Airdrop Contract` passing the proof generated in the previous step as calldata
+- Once the proof is generated click `Collect Airdrop`. This will generate a call to the `Private Over18 Airdrop Contract` passing the proof generated in the previous step as calldata.
 
 [Youtube Demo](https://youtu.be/4W1LkUpSIfE)
 
